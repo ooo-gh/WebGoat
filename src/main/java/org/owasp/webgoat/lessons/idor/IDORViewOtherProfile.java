@@ -44,13 +44,12 @@ public class IDORViewOtherProfile implements AssignmentEndpoint {
 
     Object obj = userSessionData.getValue("idor-authenticated-as");
     if (obj != null && obj.equals("tom")) {
-      // going to use session auth to view this one
       String authUserId = (String) userSessionData.getValue("idor-authenticated-user-id");
       if (userId != null && !userId.equals(authUserId)) {
-        // on the right track
         UserProfile requestedProfile = new UserProfile(userId);
-        // secure code would ensure there was a horizontal access control check prior to dishing up
-        // the requested profile
+        if (!isAuthorizedToViewProfile(authUserId, requestedProfile)) {
+          return failed(this).feedback("idor.view.profile.unauthorized").build();
+        }
         if (requestedProfile.getUserId() != null
             && requestedProfile.getUserId().equals("2342388")) {
           return success(this)
@@ -65,5 +64,12 @@ public class IDORViewOtherProfile implements AssignmentEndpoint {
       }
     }
     return failed(this).build();
+  }
+
+  private boolean isAuthorizedToViewProfile(String requesterId, UserProfile targetProfile) {
+    if (targetProfile.getUserId() == null) {
+      return false;
+    }
+    return requesterId.equals(targetProfile.getUserId());
   }
 }
