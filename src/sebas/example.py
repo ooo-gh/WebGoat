@@ -12,7 +12,7 @@ class Question(models.Model):
 def snippet_list(request):
   name = request.GET.get('name', 'wazzzup?')
   # ruleid: djangoorm-django
-  q = Question.objects.raw(f"SELECT * FROM question WHERE text = '{name}'")
+  q = Question.objects.raw("SELECT * FROM question WHERE text = %s", [name])
 
   # ruleid: djangoorm-django
   q = Question.objects.extra({"val": f"SELECT * FROM question WHERE text = '{name}'"}).all()
